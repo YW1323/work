@@ -43,14 +43,14 @@ public class MsgDecode extends MessageToMessageDecoder<ByteBuf>{
     	GZIPOutputStream gout = new GZIPOutputStream(out);*/
     	int length = msg.writerIndex();
     	if( length>4 ){
-    		byte[] resouceData = new byte[length];
-//	    	byte[] resouceData = new byte[length-4];
-//	    	msg.skipBytes(4).readBytes(resouceData);
+//    		byte[] resouceData = new byte[length];
+	    	byte[] resouceData = new byte[length-4];
+	    	msg.skipBytes(4).readBytes(resouceData);
 	    	msg.readBytes(resouceData);
-//	    	byte[] b = DesUtils.decrypt(resouceData);
-//	    	String data = ZipUtils.uncompress(b, "utf-8");
-//	    	out.add(data);
-	    	out.add(new String(resouceData,"utf-8"));
+	    	byte[] b = DesUtils.decrypt(resouceData);
+	    	String data = ZipUtils.uncompress(b, "utf-8");
+	    	out.add(data);
+//	    	out.add(new String(resouceData,"utf-8"));
     	}
     }
     

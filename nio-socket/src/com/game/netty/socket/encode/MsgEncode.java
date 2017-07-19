@@ -1,4 +1,4 @@
-package com.game.netty.socket.decode;
+package com.game.netty.socket.encode;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
