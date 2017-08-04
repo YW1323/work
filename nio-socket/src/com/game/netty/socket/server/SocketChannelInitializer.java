@@ -23,16 +23,16 @@ public class SocketChannelInitializer extends ChannelInitializer<SocketChannel> 
 	@Override
 	protected void initChannel(SocketChannel channel) throws Exception {
 		// 以("|$|")为结尾分割的 解码器
-//		ByteBuf buf = Unpooled.copiedBuffer("|$|".getBytes("utf-8"));
-//		channel.pipeline().addLast("framer", new DelimiterBasedFrameDecoder(Integer.MAX_VALUE,buf));
+		ByteBuf buf = Unpooled.copiedBuffer("|$|".getBytes("utf-8"));
+		channel.pipeline().addLast("framer", new DelimiterBasedFrameDecoder(1024,buf));
 		// 字符串解码
-//		channel.pipeline().addLast("decoder", new MsgDecode(Charset.forName("utf-8")));
-		channel.pipeline().addLast("timeout", new IdleStateHandler(30, 30, 60));//此两项为添加心跳机制 30秒查看一次在线的客户端channel是否空闲，IdleStateHandler为netty jar包中提供的类  
-		channel.pipeline().addLast("hearbeat", new Heartbeat());
+		channel.pipeline().addLast("decoder", new MsgDecode(Charset.forName("utf-8")));
 //		channel.pipeline().addLast("validUser", new CheckUserHandler());//验证用户
+		channel.pipeline().addLast("timeout", new IdleStateHandler(1, 1, 2));//此两项为添加心跳机制 30秒查看一次在线的客户端channel是否空闲，IdleStateHandler为netty jar包中提供的类  
+		channel.pipeline().addLast("hearbeat", new Heartbeat());
 		channel.pipeline().addLast("handle", new BuissnessHandlerAdaptor());//处理逻辑
 		// 字符串编码
-		channel.pipeline().addLast("encoder", new MsgEncode());
+//		channel.pipeline().addLast("encoder", new MsgEncode());
 	}
 
 }

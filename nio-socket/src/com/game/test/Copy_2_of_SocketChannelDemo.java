@@ -1,9 +1,17 @@
 package com.game.test;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -11,7 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.game.netty.socket.utils.DesUtils;
 import com.game.netty.socket.utils.ZipUtils;
 
-public class SocketChannelDemo {
+public class Copy_2_of_SocketChannelDemo {
 	public static AtomicInteger n = new AtomicInteger(1);
 	
 	public  static void startClient()throws Exception{
@@ -21,47 +29,30 @@ public class SocketChannelDemo {
 				@Override
 				public void run() {
 					try {
-						SocketChannel socketChannel = SocketChannel.open();
-						socketChannel.connect(new InetSocketAddress("localhost", 8888));
-						socketChannel.configureBlocking(false);
-						
-				//		String request = "|$|";
-						JSONObject json = new JSONObject();
-						JSONObject user = new JSONObject();
-						user.put("userAccount", "lp"+n.getAndIncrement());
-						user.put("msg", "你好!");
-						json.put("user", user);
-						String data = json.toJSONString() + "|$|";
-						byte[] bData = ZipUtils.compressByte(json.toJSONString().getBytes("utf-8"), "utf-8");
-						byte[] eData = DesUtils.encrypt(bData);
-						byte[] lastData = addHeader(eData);
-						byte[] lastHeadData = addTail(lastData);
-//						byte[] lastLimitHeadData = addArray("|$|".getBytes("utf-8"), lastHeadData);
-//						byte[] lastLimitHeadData = addArray(lastHeadData, lastData);
-						ByteBuffer buf = ByteBuffer.wrap(lastHeadData);
-						socketChannel.write(buf);	
-					    ByteBuffer rbuf = ByteBuffer.allocate(10);
-					    int size =  socketChannel.read(rbuf);
-					    System.out.println(socketChannel.isConnected());
-					    System.out.println(socketChannel.isRegistered());
-//					    System.out.println(size);
-					    while (size != 1) {
-					    	rbuf.flip();
-					    	Charset charset = Charset.forName("UTF-8");
-//					    	System.out.println(Thread.currentThread().getName());
-					    	if (size>0) {
-					    		System.out.println(Thread.currentThread().getName()+":"+charset.newDecoder().decode(rbuf));
-					    	}
-					    	rbuf.clear();
-					    	size =  socketChannel.read(rbuf);
-//					    	System.out.println(rbuf.toString());
-					    	Thread.sleep(1000);
-					    }
-					    buf.clear();
-					    rbuf.clear();
-						socketChannel.close();
-						
-						Thread.sleep(50000);
+						String host = "127.0.0.1";
+				        int port = Integer.parseInt("8888");
+				        EventLoopGroup workerGroup = new NioEventLoopGroup();
+
+				        try {
+				            Bootstrap b = new Bootstrap(); // (1)
+				            b.group(workerGroup); // (2)
+				            b.channel(NioSocketChannel.class); // (3)
+				            b.option(ChannelOption.SO_KEEPALIVE, true); // (4)
+				            b.handler(new ChannelInitializer<SocketChannel>() {
+				                @Override
+				                public void initChannel(SocketChannel ch) throws Exception {
+				                    ch.pipeline().addLast(new TimeClientHandler());
+				                }
+				            });
+
+				            // Start the client.
+				            ChannelFuture f = b.connect(host, port).sync(); // (5)
+
+				            // Wait until the connection is closed.
+				            f.channel().closeFuture().sync();
+				        } finally {
+				            workerGroup.shutdownGracefully();
+				        }
 					} catch(Throwable e) {
 						
 					}

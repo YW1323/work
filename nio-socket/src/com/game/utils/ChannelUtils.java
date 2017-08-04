@@ -6,6 +6,8 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,6 +21,8 @@ import com.game.netty.socket.encode.MsgEncode;
 public class ChannelUtils {
 	
 	public static Map<String,Channel> channelMap = new ConcurrentHashMap<String,Channel>();
+	
+	public static List<Channel> channelList = new ArrayList<Channel>();
 	
 	public static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 	

@@ -27,6 +27,7 @@ public class SocketServer {
                     .childHandler(new SocketChannelInitializer())
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
+            b.option(ChannelOption.TCP_NODELAY, true);
             ChannelFuture f = b.bind(port).sync(); 
 			f.channel().closeFuture().sync();
 		} catch (Throwable e) {

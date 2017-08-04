@@ -1,5 +1,6 @@
 package com.game.netty.socket.handler;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -24,10 +25,10 @@ public class BuissnessHandlerAdaptor extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {  
     	System.out.println(msg);
     	System.out.println(ctx.channel().remoteAddress());
+    	ChannelUtils.channelList.add(ctx.channel());
     	JSONObject json = JSONObject.parseObject((String)msg);
-    	ChannelUtils.channelMap.put(json.getJSONObject("user").getString("userAccount"), ctx.channel());
     	ChatHandler chat = new ChatHandler();
-    	BusinessTask.addTask(ctx.channel(), chat, (String)msg);
+//    	BusinessTask.addTask(ctx.channel(), chat, (String)msg);
     	ctx.channel().write("ok");  
     	ctx.channel().flush();
     }
