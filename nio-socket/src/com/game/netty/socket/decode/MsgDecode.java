@@ -45,11 +45,9 @@ public class MsgDecode extends MessageToMessageDecoder<ByteBuf>{
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
     	
-    /*	OutputStream out = new OutputStream
-    	GZIPOutputStream gout = new GZIPOutputStream(out);*/
     	int length = msg.writerIndex();
     	System.out.println(length);
-    	if( length>6 ){
+    	if(length > 6 && length < 10240){
 	    	byte[] resouceData = new byte[length-6];
 	    	msg.skipBytes(6).readBytes(resouceData);
 	    	byte[] b = DesUtils.decrypt(resouceData);

@@ -64,5 +64,19 @@ public class ZipUtils {
 		}
 		return out.toString();
 	}
+	
+	// 解压缩
+	public static byte[] uncompressByByte(byte[] b,String charset) throws IOException {
+		if ( b == null || b.length == 0) { return null; }
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ByteArrayInputStream in = new ByteArrayInputStream(b);
+		GZIPInputStream gunzip = new GZIPInputStream(in);
+		byte[] buffer = new byte[256];
+		int n;
+		while ((n = gunzip.read(buffer)) >= 0) {
+			out.write(buffer, 0, n);
+		}
+		return out.toByteArray();
+	}
 
 }

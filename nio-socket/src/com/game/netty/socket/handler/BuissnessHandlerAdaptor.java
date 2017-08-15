@@ -1,13 +1,11 @@
 package com.game.netty.socket.handler;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSONObject;
 import com.game.business.handle.ChatHandler;
 import com.game.business.task.BusinessTask;
 import com.game.utils.ChannelUtils;
@@ -26,11 +24,13 @@ public class BuissnessHandlerAdaptor extends ChannelInboundHandlerAdapter {
     	System.out.println(msg);
     	System.out.println(ctx.channel().remoteAddress());
     	ChannelUtils.channelList.add(ctx.channel());
-    	JSONObject json = JSONObject.parseObject((String)msg);
+//    	JSONObject json = JSONObject.parseObject((String)msg);
     	ChatHandler chat = new ChatHandler();
-//    	BusinessTask.addTask(ctx.channel(), chat, (String)msg);
-    	ctx.channel().write("ok");  
-    	ctx.channel().flush();
+    	BusinessTask.addTask(ctx.channel(), chat, (String)msg);
+    	/*ByteBuf buf = ctx.channel().alloc().buffer();
+    	buf.writeBytes("ok".getBytes("utf-8"));*/
+    	ctx.channel().writeAndFlush("ok");
+
     }
     
     @Override  
@@ -49,5 +49,10 @@ public class BuissnessHandlerAdaptor extends ChannelInboundHandlerAdapter {
 	
 	public void addLast(String name,Object obj){
 		this.map.put(name, obj);
+	}
+	
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+		super.exceptionCaught(ctx, cause);
 	}
 }

@@ -16,7 +16,7 @@ import com.game.netty.socket.utils.ZipUtils;
  * @author ASUS
  *
  */
-public class MsgEncode extends MessageToMessageEncoder<ByteBuf>{
+public class MsgEncode extends MessageToMessageEncoder<String>{
 	
 	private final Charset charset;
 	/**
@@ -37,14 +37,34 @@ public class MsgEncode extends MessageToMessageEncoder<ByteBuf>{
     }
 
 	@Override
-	protected void encode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
-		ByteBuf buf = Unpooled.copiedBuffer("|$|".getBytes("utf-8"));
-		byte[] b = DesUtils.encrypt(msg.array());
-    	byte[] edata = ZipUtils.compressByte(b, charset.name());
-    	String head = "lp";
-    	msg.writeBytes(head.getBytes());
-    	msg.writeBytes(edata);//写入加密数据
-    	msg.writeBytes(buf.array());//写入分隔符
+	protected void encode(ChannelHandlerContext ctx, String msg, List<Object> out) throws Exception {
+		try {
+			if (msg.length() > 0) {
+				ByteBuf buf = Unpooled.buffer();
+				byte[] resouceData = msg.getBytes(charset.name());
+				byte[] b = DesUtils.encrypt(resouceData);
+		    	byte[] edata = ZipUtils.compressByte(b, charset.name());
+		    	int length = edata.length;
+		    	byte[] head = intTobytes(length);
+		    	buf.writeBytes(head);
+		    	buf.writeBytes(edata);
+		    	out.add(buf);
+			} 
+		} catch (Throwable e) {
+		}
 	}
-
+	
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+		System.out.println(cause.getMessage());
+	}
+	
+	static byte[] intTobytes(int value){
+		byte[] bdata = new byte[4];
+		bdata[3] = (byte) ((value & 0xFF000000)>>24);  
+		bdata[2] = (byte) ((value & 0x00FF0000)>>16);  
+		bdata[1] = (byte) ((value & 0x0000FF00)>>8);    
+		bdata[0] = (byte) ((value & 0x000000FF));   ; 
+	    return bdata;  
+	}
 }

@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.alibaba.fastjson.JSONObject;
@@ -40,20 +39,36 @@ public class SocketChannelDemo {
 //						byte[] lastLimitHeadData = addArray(lastHeadData, lastData);
 						ByteBuffer buf = ByteBuffer.wrap(lastHeadData);
 						socketChannel.write(buf);	
-					    ByteBuffer rbuf = ByteBuffer.allocate(10);
+					    ByteBuffer rbuf = ByteBuffer.allocate(100);
 					    int size =  socketChannel.read(rbuf);
-					    System.out.println(socketChannel.isConnected());
-					    System.out.println(socketChannel.isRegistered());
-//					    System.out.println(size);
+					    System.out.println(size);
 					    while (size != 1) {
 					    	rbuf.flip();
-					    	Charset charset = Charset.forName("UTF-8");
-//					    	System.out.println(Thread.currentThread().getName());
-					    	if (size>0) {
-					    		System.out.println(Thread.currentThread().getName()+":"+charset.newDecoder().decode(rbuf));
+					    	if (size > 0) {
+					    		/*Charset charset = Charset.forName("UTF-8");
+					    		System.out.println(Thread.currentThread().getName()+":"+charset.newDecoder().decode(rbuf));*/
+					    		try {
+						    		byte[] byteData = new byte[size];
+						    		rbuf.get(byteData);
+						    		System.out.println(new String(byteData, "utf-8"));
+						    		/*
+						    		byte[] edata = ZipUtils.uncompressByByte(byteData, "utf-8");
+						    		byte[] b = DesUtils.decrypt(edata);
+						    		System.out.println(new String(b, "utf-8"));*/
+						    		MsgHandler.handle(byteData);
+						    		
+					    		} catch (Throwable e) {
+					    			e.printStackTrace();
+					    		}
 					    	}
 					    	rbuf.clear();
-					    	size =  socketChannel.read(rbuf);
+					    	if (size >= 0) {
+					    		size =  socketChannel.read(rbuf);
+					    	} else {
+					    		System.out.println(1);
+					    		socketChannel.close();
+					    		break;
+					    	}
 //					    	System.out.println(rbuf.toString());
 					    	Thread.sleep(1000);
 					    }
@@ -63,7 +78,7 @@ public class SocketChannelDemo {
 						
 						Thread.sleep(50000);
 					} catch(Throwable e) {
-						
+						e.printStackTrace();
 					}
 				}
 
