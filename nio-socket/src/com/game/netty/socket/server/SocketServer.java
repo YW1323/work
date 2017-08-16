@@ -33,10 +33,10 @@ public class SocketServer {
 		} catch (Throwable e) {
 			LogUtils.log.log(Level.SEVERE, "启动socket服务端报错", e);
 		} finally {
-			if( bossGroup != null ){
+			if (bossGroup != null) {
 				workerGroup.shutdownGracefully(); 
 			}
-			if( workerGroup != null ){
+			if (workerGroup != null) {
 				bossGroup.shutdownGracefully(); 
 			}
         }  
